@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마법의 세계: 엘레멘탈 마스터</title>
+    <style>
+        :root {
+            --primary-color: #3a0ca3;
+            --secondary-color: #4361ee;
+            --accent-color: #7209b7;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --fire-color: #e63946;
+            --water-color: #4cc9f0;
+            --earth-color: #588157;
+            --air-color: #f9c74f;
+            --arcane-color: #9d4edd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #121212;
+            color: var(--light-color);
+            overflow: hidden;
+            height: 100vh;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIj48ZmlsdGVyIGlkPSJub2lzZSIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuMSIgbnVtT2N0YXZlcz0iNCIgc3RpdGNoVGlsZXM9InN0aXRjaCIgc2VlZD0iMTUiLz48ZmVCbGVuZCBtb2RlPSJvdmVybGF5IiBpbj0iU291cmNlR3JhcGhpYyIgaW4yPSJ0dXJidWxlbmNlIiByZXN1bHQ9ImJsZW5kIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSI0MDAiIGZpbHRlcj0idXJsKCNub2lzZSkiIG9wYWNpdHk9IjAuMiIvPjwvc3ZnPg==');
+            background-size: cover;
+        }
+        
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .login-container {
+            background-color: rgba(33, 37, 41, 0.8);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--fire-color), var(--water-color), var(--earth-color), var(--air-color), var(--arcane-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradient 10s ease infinite;
+            background-size: 300% 300%;
+        }
+        
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: #adb5bd;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #495057;
+            background-color: rgba(33, 37, 41, 0.9);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .room-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+        
+        .btn-create, .btn-join {
+            width: 48%;
+        }
+        
+        .game-container {
+            display: none;
+            height: 100vh;
+            position: relative;
+        }
+        
+        .opponent-area, .player-area {
+            height: 40vh;
+            width: 100%;
+            position: relative;
+            padding: 1rem;
+        }
+        
+        .opponent-area {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .middle-area {
+            height: 20vh;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1rem;
+        }
+        
+        .deck, .graveyard {
+            width: 120px;
+            height: 160px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .deck {
+            background-image: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            position: relative;
+        }
+        
+        .deck::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 5px;
+            z-index: 1;
+        }
+        
+        .deck-count, .graveyard-count {
+            position: relative;
+            z-index: 2;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .play-area {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 0.5rem;
+        }
+        
+        .card-slot-area {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .card-slot {
+            width: 100px;
+            height: 140px;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .hand-area {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px;
+            gap: 5px;
+            height: 160px;
+        }
+        
+        .card {
+            width: 100px;
+            height: 140px;
+            border-radius: 8px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            cursor: pointer;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-front {
+            background-color: #3a3a3c;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card-back {
+            background-image: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            transform: rotateY(180deg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .card-header {
+            padding: 5px;
+            display: flex;
+            justify-content: space-between;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        
+        .card-cost {
+            width: 20px;
+            height: 20px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        
+        .card-element {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+        
+        .element-fire { background-color: var(--fire-color); }
+        .element-water { background-color: var(--water-color); }
+        .element-earth { background-color: var(--earth-color); }
+        .element-air { background-color: var(--air-color); }
+        .element-arcane { background-color: var(--arcane-color); }
+        
+        .card-image {
+            height: 60px;
+            background-color: #2a2a2c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #adb5bd;
+            font-size: 0.7rem;
+            padding: 5px;
+            text-align: center;
+        }
+        
+        .card-title {
+            font-size: 0.6rem;
+            padding: 3px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: bold;
+        }
+        
+        .card-description {
+            font-size: 0.5rem;
+            padding: 3px;
+            height: 40px;
+            overflow: hidden;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+        
+        .card-attack, .card-health {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        
+        .card-attack {
+            background-color: var(--fire-color);
+        }
+        
+        .card-health {
+            background-color: var(--earth-color);
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .player-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+        
+        .player-name {
+            font-weight: bold;
+        }
+        
+        .player-stats {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .mana, .health {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .mana-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--water-color);
+        }
+        
+        .health-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--fire-color);
+        }
+        
+        .turn-indicator {
+            background-color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(58, 12, 163, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(58, 12, 163, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(58, 12, 163, 0);
+            }
+        }
+        
+        .game-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .action-button:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .game-log {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 300px;
+            height: 200px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            padding: 10px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+            color: #adb5bd;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: #212529;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 600px;
+            width: 90%;
+        }
+        
+        .modal-header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-body {
+            margin-bottom: 1rem;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .card-preview {
+            width: 200px;
+            height: 280px;
+            margin: 0 auto;
+            perspective: 1000px;
+        }
+        
+        .game-over-modal {
+            text-align: center;
+        }
+        
+        .winner-announcement {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+        
+        #game-log-toggle {
+            position: absolute;
+            bottom: 10px;
+            right: 320px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        .connection-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 10;
+        }
+        
+        .connected {
+            background-color: var(--earth-color);
+        }
+        
+        .connecting {
+            background-color: var(--air-color);
+        }
+        
+        .disconnected {
+            background-color: var(--fire-color);
+        }
+        
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--secondary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            margin-top: 1rem;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .opponent-area, .player-area {
+                height: 35vh;
+            }
+            
+            .middle-area {
+                height: 30vh;
+            }
+            
+            .card {
+                width: 80px;
+                height: 112px;
+            }
+            
+            .card-slot {
+                width: 80px;
+                height: 112px;
+            }
+            
+            .deck, .graveyard {
+                width: 80px;
+                height: 112px;
+            }
+            
+            .card-title, .card-description {
+                font-size: 0.5rem;
+            }
+            
+            .card-cost, .card-element, .card-attack, .card-health {
+                width: 16px;
+                height: 16px;
+                font-size: 0.6rem;
+            }
+            
+            .card-image {
+                height: 40px;
+            }
+            
+            .game-log {
+                width: 200px;
+                height: 150px;
+            }
+            
+            #game-log-toggle {
+                right: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-screen" id="loginScreen">
+        <div class="login-container">
+            <h1 class="title">마법의 세계: 엘레멘탈 마스터</h1>
+            <h2 class="subtitle">엘레멘탈 카드 게임의 세계에 오신 것을 환영합니다</h2>
+            <div class="form-group">
+                <input type="text" class="form-control" id="playerName" placeholder="게임 내 닉네임">
+            </div>
+            <div class="room-container">
+                <button class="btn btn-primary btn-create" id="createRoom">방 만들기</button>
+                <button class="btn btn-primary btn-join" id="joinRoom">방 참가</button>
+            </div>
+            <div class="form-group" id="roomIdGroup" style="display: none; margin-top: 1rem;">
+                <input type="text" class="form-control" id="roomId" placeholder="방 코드 입력">
+                <button class="btn btn-primary" style="margin-top: 0.5rem; width: 100%;" id="connectToRoom">접속하기</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="game-container" id="gameContainer">
+        <div class="connection-status" id="connectionStatus">연결 중...</div>
+        
+        <div class="opponent-area">
+            <div class="status-bar">
+                <div class="player-info">
+                    <div class="player-avatar" id="opponentAvatar">?</div>
+                    <div class="player-name" id="opponentName">상대방</div>
+                </div>
+                <div class="player-stats">
+                    <div class="mana">
+                        <div class="mana-icon"></div>
+                        <span id="opponentMana">0/0</span>
+                    </div>
+                    <div class="health">
+                        <div class="health-icon"></div>
+                        <span id="opponentHealth">30</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hand-area" id="opponentHand">
+                <!-- 상대방 카드는 뒤집어져 있음 -->
+            </div>
+            
+            <div class="card-slot-area" id="opponentCardSlots">
+                <div class="card-slot" data-index="0"></div>
+                <div class="card-slot" data-index="1"></div>
+                <div class="card-slot" data-index="2"></div>
+                <div class="card-slot" data-index="3"></div>
+                <div class="card-slot" data-index="4"></div>
+            </div>
+        </div>
+        
+        <div class="middle-area">
+            <div class="deck" id="opponentDeck">
+                <div class="deck-count" id="opponentDeckCount">30</div>
+            </div>
+            
+            <div class="turn-indicator" id="turnIndicator">상대방 턴</div>
+            
+            <div class="graveyard" id="opponentGraveyard">
+                <div class="graveyard-count" id="opponentGraveyardCount">0</div>
+            </div>
+        </div>
+        
+        <div class="player-area">
+            <div class="card-slot-area" id="playerCardSlots">
+                <div class="card-slot" data-index="0"></div>
+                <div class="card-slot" data-index="1"></div>
+                <div class="card-slot" data-index="2"></div>
+                <div class="card-slot" data-index="3"></div>
+                <div class="card-slot" data-index="4"></div>
+            </div>
+            
+            <div class="hand-area" id="playerHand">
+                <!-- 플레이어 카드는 여기에 추가됨 -->
+            </div>
+            
+            <div class="status-bar">
+                <div class="player-info">
+                    <div class="player-avatar" id="playerAvatar">P</div>
+                    <div class="player-name" id="playerNameDisplay">플레이어</div>
+                </div>
+                <div class="player-stats">
+                    <div class="mana">
+                        <div class="mana-icon"></div>
+                        <span id="playerMana">0/0</span>
+                    </div>
+                    <div class="health">
+                        <div class="health-icon"></div>
+                        <span id="playerHealth">30</span>
+                    </div>
+                </div>
+                <div class="game-actions">
+                    <button class="action-button" id="endTurnBtn">턴 종료</button>
+                </div>
+            </div>
+        </div>
+        
+        <button id="game-log-toggle">로그</button>
+        
+        <div class="game-log" id="gameLog">
+            <!-- 게임 로그 -->
+        </div>
+    </div>
+    
+    <div class="modal" id="cardModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalCardTitle">카드 제목</h2>
+            </div>
+            <div class="modal-body">
+                <div class="card-preview" id="modalCardPreview">
+                    <!-- 카드 미리보기가 여기에 추가됨 -->
+                </div>
+                <p id="modalCardDescription">카드 설명</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="closeCardModal">닫기</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="gameOverModal">
+        <div class="modal-content game-over-modal">
+            <div class="modal-header">
+                <h2>게임 종료</h2>
+            </div>
+            <div class="modal-body">
+                <div class="winner-announcement" id="winnerAnnouncement">승자: 플레이어</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="playAgainBtn">다시 플레이</button>
+                <button class="btn btn-primary" id="exitGameBtn">게임 나가기</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">연결 중...</div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.4.7/peerjs.min.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
